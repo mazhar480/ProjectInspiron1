@@ -1,25 +1,39 @@
 // backend/core/user/user.service.js
 
-const User = require('./user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const saltRounds = 10; // Number of salt rounds for bcrypt
-
-// **IMPORTANT:** Replace this with a strong, secret key from your environment variables in production
-const JWT_SECRET = 'your-secret-key';
-
-// In a real application, you would likely use a database to store users.
-// For now, we'll use an in-memory array for simplicity.
-const users = [];
-let nextId = 1;
+const pool = require('../../database/db'); // Import the database connection pool
+const saltRounds = 10;
+const JWT_SECRET = 'your-secret-key'; // **IMPORTANT:** Use a strong, secure secret
 
 class UserService {
     async createUser(username, email, password) {
-        // ... (rest of the createUser method from the previous step remains the same) ...
+        if (!username || !email || !password) {
+            throw new Error('Missing required fields.');
+        }
+        if (!this.isValidEmail(email)) {
+            throw new Error('Invalid email format.');
+        }
+        if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters long.');
+        }
+
+        const [existingUserByUsername] = await pool.execute('SELECT * FROM users WHERE username = ?', [username]);
+        if (existingUserByUsername.length > 0) {
+            throw new Error('Username already exists.');
+        }
+
+        const [existingUserByEmail] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+        if (existingUserByEmail.length > 0) {
+            throw new Error('Email already exists.');
+        }
+
         const passwordHash = await bcrypt.hash(password, saltRounds);
-        const newUser = new User(nextId++, username, email, passwordHash, new Date());
-        users.push(newUser);
-        return newUser;
+        const [result] = await pool.execute('INSERT INTO users (username, email, passwordHash, registrationDate) VALUES (?, ?, ?, ?)', [username, email, passwordHash, new Date()]);
+        const userId = result.insertId;
+
+        const [newUser] = await pool.execute('SELECT id, username, email FROM users WHERE id = ?', [userId]);
+        return newUser[0];
     }
 
     async verifyPassword(plainTextPassword, hashedPassword) {
@@ -27,36 +41,34 @@ class UserService {
     }
 
     generateToken(user) {
-        // Create a JWT payload containing user information (excluding sensitive data like password hash)
         const payload = {
             userId: user.id,
             username: user.username,
             email: user.email
         };
-
-        // Sign the token with the secret key and set an expiration time
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }); // Token expires in 1 hour
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
         return token;
     }
 
-    getUserById(id) {
-        return users.find(user => user.id === parseInt(id));
+    async getUserById(id) {
+        const [rows] = await pool.execute('SELECT id, username, email FROM users WHERE id = ?', [id]);
+        return rows[0];
     }
 
-    getUserByUsername(username) {
-        return users.find(user => user.username === username);
+    async getUserByUsername(username) {
+        const [rows] = await pool.execute('SELECT * FROM users WHERE username = ?', [username]);
+        return rows[0];
     }
 
-    getUserByEmail(email) {
-        return users.find(user => user.email === email);
+    async getUserByEmail(email) {
+        const [rows] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+        return rows[0];
     }
 
     isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
-
-    // In a real application, you would have methods for updating users, deleting users, etc.
 }
 
 module.exports = new UserService();

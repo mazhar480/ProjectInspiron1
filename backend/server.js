@@ -4,11 +4,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const userService = require('./core/user/user.service');
 const authenticateToken = require('./middleware/authMiddleware'); // Import the middleware
+const assetRoutes = require('./modules/itam/routes/asset.routes');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+
+// Mount the asset routes under the /api path
+app.use('/api', assetRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello from Project Inspiron 1 Backend!');
