@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+
 const app = express();
 
 // Middleware to parse JSON bodies
@@ -21,10 +22,11 @@ app.use(cors(corsOptions));
 
 // Import routes
 const userRoutes = require('./routes/user.routes');
+const assetRoutes = require('./modules/itam/routes/asset.routes');
 
 // Use routes
 app.use('/api/users', userRoutes);
-
+app.use('/api/assets', assetRoutes);
 
 // Start the server
 const PORT = 4000;
