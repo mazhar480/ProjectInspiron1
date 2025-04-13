@@ -1,40 +1,33 @@
-// backend/server.js
+require('dotenv').config();
 
 const express = require('express');
-const bodyParser = require('body-parser');
-const userService = require('./core/user/user.service');
-const authenticateToken = require('./middleware/authMiddleware'); // Import the middleware
-const assetRoutes = require('./modules/itam/routes/asset.routes');
+const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+// Middleware to parse JSON bodies
+app.use(express.json());
 
-// Mount the asset routes under the /api path
-app.use('/api', assetRoutes);
+// CORS configuration
+const corsOptions = {
+    origin: 'http://localhost:5173', // Replace with your frontend's URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true, // Enable if you need to send cookies or authentication headers
+};
 
-app.get('/', (req, res) => {
-  res.send('Hello from Project Inspiron 1 Backend!');
-});
+// Apply CORS middleware globally
+app.use(cors(corsOptions));
 
-app.post('/api/register', async (req, res) => {
-  // ... (registration route remains the same) ...
-});
+// Import routes
+const userRoutes = require('./routes/user.routes');
 
-app.post('/api/login', async (req, res) => {
-  // ... (login route remains the same) ...
-});
+// Use routes
+app.use('/api/users', userRoutes);
 
-app.get('/api/users/:id', (req, res) => {
-  // ... (get user by id route remains the same) ...
-});
 
-// Protected route example
-app.get('/api/protected', authenticateToken, (req, res) => {
-  res.json({ message: 'This is a protected route!', user: req.user });
-});
-
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+// Start the server
+const PORT = 4000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

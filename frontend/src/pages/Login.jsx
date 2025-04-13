@@ -31,7 +31,7 @@ function Login() {
         e.preventDefault();
         if (validateForm()) {
             try {
-                const response = await axios.post('/api/login', { usernameOrEmail, password });
+                const response = await axios.post('/api/users/login', { usernameOrEmail, password });
                 console.log(response.data.message);
                 localStorage.setItem('token', response.data.token);
                 navigate('/dashboard');

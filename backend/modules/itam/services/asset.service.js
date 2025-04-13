@@ -1,6 +1,6 @@
 // backend/modules/itam/services/asset.service.js
 
-const pool = require('../../../database/db'); // Import the database connection pool
+const pool = require('../../..//core/database/db'); // Import the database connection pool
 const Asset = require('../models/asset.model');
 
 class AssetService {

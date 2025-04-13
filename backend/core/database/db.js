@@ -1,7 +1,8 @@
 // backend/database/db.js
 
 const mysql = require('mysql2');
-const dbConfig = require('../core/config/db.config'); // Updated path
+const dbConfig = require('../config/db.config'); // This is the corrected path
+require('dotenv').config();
 
 const pool = mysql.createPool({
     host: dbConfig.host,
