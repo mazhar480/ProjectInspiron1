@@ -14,10 +14,9 @@ function AssetForm({ initialValues = {}, onSubmit }) {
     assetTag: '',
     category: '',
     status: '',
-    assetId: '', // New field
-    assetType: '', // New field
-     manufacturer: '', // New field
-    owner: '', // New field
+    assetId: '',
+    assetType: [],
+    manufacturer: '',
     warrantyInformation: '', // New field
     configurationDetails: '', // New field
     acquisitionDate: '',
@@ -47,8 +46,7 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       assetTag: initialValues.assetTag || '',
       category: initialValues.category || '',
       assetId: initialValues.assetId || '', // New field
-      assetType: initialValues.assetType || '', // New field
-       manufacturer: initialValues.manufacturer || '', // New field
+      assetType: initialValues.assetType || [],
       owner: initialValues.owner || '', // New field
       warrantyInformation: initialValues.warrantyInformation || '', // New field
       configurationDetails: initialValues.configurationDetails || '', // New field
@@ -78,13 +76,13 @@ function AssetForm({ initialValues = {}, onSubmit }) {
   const handleChange = (e) => {
      const { name, value, type, checked } = e.target;
     if (name === 'assetType') {
-      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-        setFormData(prev => ({ ...prev, [name]: selectedOptions }));
-    }else if (type === 'checkbox') {
-
-      const selectedTypes = formData.assetType
-        ? [...formData.assetType]
-        : [];
+      const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
+      setFormData((prev) => ({ ...prev, [name]: selectedOptions }));
+    } else if (type === 'checkbox') {
+      const selectedTypes = formData.assetType ? [...formData.assetType] : [];
+      
+      
+      
       if (checked) {
         selectedTypes.push(value);
       } else {
@@ -92,7 +90,7 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       }
       setFormData(prev => ({ ...prev, assetType: selectedTypes }));
     } else {
-       setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -104,11 +102,11 @@ function AssetForm({ initialValues = {}, onSubmit }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
       {[
-        { label: 'Asset Name', name: 'name' },
-        { label: 'Asset Tag', name: 'assetTag' },
-        { label: 'Category', name: 'category' },
-        { label: 'Status', name: 'status' },
-        { label: 'Asset ID', name: 'assetId' }, // New field
+        { label: 'Asset Name', name: 'name', required: true },
+        { label: 'Asset Tag', name: 'assetTag', required: true },
+        { label: 'Category', name: 'category', required: true },
+        { label: 'Status', name: 'status', required: true },
+        { label: 'Asset ID', name: 'assetId', required: true },
         { label: 'Manufacturer', name: 'manufacturer' }, // New field
         { label: 'Owner', name: 'owner' }, // New field
         { label: 'Make', name: 'make' },
@@ -129,17 +127,12 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         { label: 'Project', name: 'project' },
         { label: 'Project Location', name: 'projectLocation' },
       ].map(({ label, name }) => (
-        
-
-        
         <div key={name}>
           <label className="block mb-1 font-medium">{label}</label>
           <input
-           {...(name === 'name' || name === 'assetTag' || name === 'category' || name === 'status' || name === 'assetType'
-              ? { required: true }
-              : {})}
-            
+           
             name={name}
+            type={name === "purchasePrice" ? "number" : "text"}
             
             value={formData[name]}
             onChange={handleChange}
@@ -150,90 +143,56 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       ))}
       <div>
 
-  <label className="block mb-1 font-medium">Asset Type</label>
-  <select
-    name="assetType"
-    multiple={true}
-    value={formData.assetType}
-    onChange={handleChange}
-    className="w-full border px-3 py-2 rounded"
-    >
-    {assetTypeOptions.map((option) => (
-        <option key={option} value={option}>
-        {option}
-        </option>
-    ))}
-    </select>
-
-    
-     </div>
-        
-
-     
-
-
-
-
-
-
-      <div>
-        <label  className="block mb-1 font-medium">Acquisition Date</label>
-        <input
-          type="date"
-          name="acquisitionDate"
-          value={formData.acquisitionDate}
-           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 font-medium">Disposal Method</label>
-        <input
-          name="disposalMethod"
-          value={formData.disposalMethod}
+        <label className="block mb-1 font-medium">Asset Type</label>
+        <select
+          name="assetType"
+          multiple={true}
+          value={formData.assetType}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
-        />
+        >
+          {assetTypeOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       </div>
+
       <div>
-        <label className="block mb-1 font-medium">Retirement Date</label>
-        <input
-          type="date"
-          name="retirementDate"
-          value={formData.retirementDate}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-      </div>
+          <label  className="block mb-1 font-medium">Acquisition Date</label>
+          <input
+            type="date"
+            name="acquisitionDate"
+            value={formData.acquisitionDate}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+            required
+          />
+        </div>
+
       <div>
           <label className="block mb-1 font-medium">Warranty Information</label>
           <textarea
+          required
             name="warrantyInformation"
             value={formData.warrantyInformation}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
           />
         </div>
-        <div>
-          <label className="block mb-1 font-medium">Configuration Details</label>
-          <textarea
-            name="configurationDetails"
-            value={formData.configurationDetails}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-<div>
-<label className="block mb-1 font-medium">Notes</label>
-<textarea
-  name="notes"
-  value={formData.notes}
-  onChange={handleChange}
-  className="w-full border px-3 py-2 rounded"
-/>
+        
+            <div>
+              <label className="block mb-1 font-medium">Configuration Details</label>
+              <textarea
+              required
+                name="configurationDetails"
+                value={formData.configurationDetails}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded"
+              />
+            </div>
+       
 
       <button
         type="submit"
