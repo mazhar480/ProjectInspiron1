@@ -43,6 +43,7 @@ const itamService = {
         configurationDetails: assetData.configurationDetails,
         relatedAssets: assetData.relatedAssets,
       };
+      console.log('backendAssetData:', backendAssetData);
         try {
             const response = await axios.post(API_BASE_URL, backendAssetData);
             return response.data;
