@@ -113,7 +113,12 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         <div key={name}>
           <label className="block mb-1 font-medium">{label}</label>
           <input
+           {...(name === 'name' || name === 'assetTag' || name === 'category' || name === 'status' || name === 'assetType'
+              ? { required: true }
+              : {})}
+            
             name={name}
+            
             value={formData[name]}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
@@ -123,12 +128,12 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       ))}
 
       <div>
-        <label className="block mb-1 font-medium">Acquisition Date</label>
+        <label  className="block mb-1 font-medium">Acquisition Date</label>
         <input
           type="date"
           name="acquisitionDate"
           value={formData.acquisitionDate}
-          onChange={handleChange}
+           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
           required
         />
