@@ -7,6 +7,7 @@ import AssetListPage from './pages/ITAM/AssetListPage';
 import AssetDetailsPage from './pages/ITAM/AssetDetailsPage';
 import AssetFormPage from './pages/ITAM/AssetFormPage';
 import ITAMDashboard from './pages/ITAM/ITAMDashboard';
+import ITAMSettingsPage from './pages/ITAM/ITAMSettingsPage';
 import SidebarLayout from './components/SidebarLayout';
 import './index.css';
 
@@ -43,6 +44,7 @@ function App() {
     <Route path="assets/new" element={<AssetFormPage />} />
     <Route path="assets/:id" element={<AssetDetailsPage />} />
     <Route path="assets/:id/edit" element={<AssetFormPage />} />
+     <Route path="settings" element={<ITAMSettingsPage />} />
   </Route>
 
   {/* Fallback */}

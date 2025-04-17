@@ -11,6 +11,7 @@ import itamService from '../../services/itam.service';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import SettingsIcon from '@mui/icons-material/Settings';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -289,6 +290,9 @@ function ITAMDashboard() {
                 <Button variant="outlined" startIcon={<AddBoxIcon />} component={Link} to="/itam/assets/new">
                   Register New Asset
                 </Button>
+                <Button variant="outlined" startIcon={<SettingsIcon />} component={Link} to="/itam/settings">
+                ITAM Settings
+              </Button>
               </Stack>
             </Grid>
           </Grid>
