@@ -13,10 +13,10 @@ import './index.css';
 
 // Dummy authentication check (replace with actual auth logic)
 const isAuthenticated = () => {
-    // Replace this with your actual authentication logic
-    const user = localStorage.getItem('user'); // Example: check if user is stored
-    return !!user; // Returns true if user exists, false otherwise
-  };
+  // Check for the 'token' in localStorage
+  const token = localStorage.getItem('token');
+  return !!token; // Returns true if token exists, false otherwise
+};
 
  // PrivateRoute component for protected routes
  const PrivateRoute = ({ children }) => {
