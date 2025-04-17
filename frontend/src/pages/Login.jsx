@@ -34,7 +34,12 @@ function Login() {
                 const response = await axios.post('/api/users/login', { usernameOrEmail, password });
                 console.log(response.data.message);
                 localStorage.setItem('token', response.data.token);
-                navigate('/dashboard');
+                const redirectUrl = localStorage.getItem('redirectUrl');
+                if (redirectUrl) {
+                    navigate(redirectUrl);
+                    localStorage.removeItem('redirectUrl');
+                } else
+                 { navigate('/dashboard');}
             } catch (error) {
                 console.error(error.response.data.message);
                 alert(error.response.data.message);
