@@ -30,7 +30,7 @@ const itamService = {
             throw error;
         }
     },
-
+    
     createAsset: async (assetData) => {
       // Map frontend form data to backend asset data structure
       const backendAssetData = {
@@ -51,26 +51,11 @@ const itamService = {
             throw error;
         }
     },
-
-
+    
     updateAsset: async (id, assetData) => {
       const backendAssetData = {...assetData, assetId: assetData.assetId,assetType: assetData.assetType,manufacturer: assetData.manufacturer,owner: assetData.owner,warrantyInformation: assetData.warrantyInformation,configurationDetails: assetData.configurationDetails,relatedAssets: assetData.relatedAssets};
-
-
-
-    createAsset: async (assetData) => {
         try {
-            const response = await axios.post(API_BASE_URL, assetData);
-            return response.data;
-        } catch (error) {
-            console.error('Error creating asset:', error);
-            throw error;
-        }
-    },
-
-    updateAsset: async (id, assetData) => {
-        try {
-            const response = await axios.put(`${API_BASE_URL}/${id}`, assetData);
+            const response = await axios.put(`${API_BASE_URL}/${id}`, backendAssetData);
             return response.data;
         } catch (error) {
             console.error(`Error updating asset with id ${id}:`, error);
@@ -87,5 +72,5 @@ const itamService = {
         }
     }
 };
-
+    
 export default itamService;
