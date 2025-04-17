@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, Card, CardContent, Button, Box } from '@mui/material';
+import { Container, Typography, Grid, Card, CardContent, Button, Box, CircularProgress } from '@mui/material';
 import { Link, Routes, Route, Outlet } from 'react-router-dom';
 import itamService from '../../services/itam.service';
 import AssetListPage from './AssetListPage';
+import KPIWidget from '../../components/KPIWidget';
 import AssetFormPage from './AssetFormPage';
 import AssetDetailsPage from './AssetDetailsPage';
 
@@ -70,13 +71,13 @@ function ITAMDashboard() {
                   IT Asset Management Dashboard
                 </Typography>
               </Box>
-              {loading && <Typography>Loading...</Typography>}
+              {loading && <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />}
               {error && (
                 <Typography color="error">Error: {error}</Typography>
               )}
-              <Grid container spacing={3}>
-                {/* KPI Cards */}
-                <Grid item xs={12} md={3}>
+               {!loading && (
+                <Grid container spacing={3}>
+                 <Grid item xs={12} md={3}>
                   <Card sx={{ boxShadow: 3 }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" component="div" gutterBottom>
@@ -127,6 +128,8 @@ function ITAMDashboard() {
                       <Typography variant="h3">Data: Available</Typography>
                     </CardContent>
                   </Card>
+                 <KPIWidget title="Total Assets" value={kpiData.totalAssets} />
+                
                 </Grid>
 
                 {/* Summary Information */}
@@ -171,7 +174,8 @@ function ITAMDashboard() {
                     Create New Asset
                   </Button>
                 </Grid>
-              </Grid>
+                  </Grid>
+                   )}
             </Container>
           }
         />
