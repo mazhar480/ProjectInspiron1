@@ -1,125 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Container, Typography, Grid, Card, CardContent, Button,
-  Box, Snackbar
-} from '@mui/material';
+// src/pages/ITAM/ITAMSettingsPage.jsx
+
+import React from 'react';
+import { Container, Typography, Grid, Card, CardContent, Button, Divider, Stack } from '@mui/material';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import SettingsIcon from '@mui/icons-material/Settings';
+import BuildIcon from '@mui/icons-material/Build';
+import TuneIcon from '@mui/icons-material/Tune';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
-function ITAMSettingsPage() {
-  const [settings, setSettings] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const token = localStorage.getItem('token');
+const ITAMSettingsPage = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  const fetchSettings = async () => {
-    try {
-      const response = await axios.get('/api/itam/settings/standard', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSettings(response.data);
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-      const errorMessage = error.response?.data?.message || 'Error fetching settings';
-      showSnackbar(errorMessage, 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const saveSettings = async (newSettings) => {
-    try {
-      await axios.post('/api/itam/settings/standard', newSettings, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      showSnackbar('Settings saved successfully', 'success');
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      const errorMessage = error.response?.data?.message || 'Error saving settings';
-      showSnackbar(errorMessage, 'error');
-    }
-  };
-
-  useEffect(() => {
-    fetchSettings().then(data => setSettings(data));
-  }, []);
+  const isAdmin = user.role === 'admin' || user.role === 'superadmin';
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        ITAM Settings
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        <SettingsIcon sx={{ mr: 1 }} /> ITAM Settings
       </Typography>
 
-      {loading ? (
-        <Typography>Loading settings...</Typography>
-      ) : (
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Asset Types
-                </Typography>
-                {settings.assetTypes && settings.assetTypes.map((type, index) => (
-                  <Typography key={index} variant="body1" gutterBottom>
-                    {type}
-                  </Typography>
-                ))}
-              </CardContent>
-            </Card>
-          </Grid>
+      <Card sx={{ mt: 2 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>Configuration</Typography>
+          <Divider sx={{ mb: 2 }} />
 
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Asset Status Options
-                </Typography>
-                {settings.assetStatus && settings.assetStatus.map((status, index) => (
-                  <Typography key={index} variant="body1" gutterBottom>
-                    {status}
-                  </Typography>
-                ))}
-              </CardContent>
-            </Card>
-          </Grid>
+          <Stack spacing={2}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<BuildIcon />}
+              component={Link}
+              to="/itam/settings/form-fields"
+            >
+              Manage Asset Form Fields
+            </Button>
 
-          <Grid item xs={12}>
-            <Box display="flex" justifyContent="space-between">
-              <Button variant="contained" color="primary" disabled onClick={() => saveSettings(settings)}>
-                Save Changes
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<TuneIcon />}
+              component={Link}
+              to="/itam/settings/lifecycle"
+            >
+              Configure Lifecycle Status
+            </Button>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<TuneIcon />}
+              component={Link}
+              to="/itam/settings/dropdowns"
+            >
+              Manage Dropdown Values
+            </Button>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<PictureAsPdfIcon />}
+              component={Link}
+              to="/itam/settings/export-options"
+            >
+              Export & Branding
+            </Button>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<NotificationsActiveIcon />}
+              component={Link}
+              to="/itam/settings/notifications"
+            >
+              Notification Settings
+            </Button>
+
+            {user.role === 'superadmin' && (
+              <Button
+                variant="outlined"
+                fullWidth
+                startIcon={<AdminPanelSettingsIcon />}
+                component={Link}
+                to="/itam/settings/system"
+              >
+                System Settings (Super Admin)
               </Button>
-              {user.role === 'admin' && (
-                <Button variant="outlined" component={Link} to="/itam/settings/custom">
-                  Create Custom Settings
-                </Button>
-              )}
-            </Box>
-          </Grid>
-        </Grid>
-      )}
-       <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-      />
+            )}
+          </Stack>
+        </CardContent>
+      </Card>
     </Container>
   );
-}
+};
 
 export default ITAMSettingsPage;
