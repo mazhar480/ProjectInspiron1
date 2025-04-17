@@ -1,6 +1,7 @@
 import React from 'react'; 
 import { useNavigate, Link } from 'react-router-dom';
-
+import { LayoutDashboard, Boxes } from 'lucide-react';
+import { Button } from 'lucide-react';
 function Dashboard() {
   const navigate = useNavigate(); // ✅ must be called inside component
 
@@ -16,9 +17,13 @@ function Dashboard() {
       <nav className="bg-blue-500 p-6 flex items-center justify-between text-white shadow-md">
         <div className="flex items-center space-x-6">
           <h1 className="text-2xl font-bold">Inspiron 1</h1>
-          <Link to="/itam/dashboard" className="hover:text-gray-200">
+          <Link to="/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
+          <LayoutDashboard />
+          Dashboard
+        </Link>
+        <Link to="/itam/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
+          <Boxes />
             ITAM
-          </Link>
         </div>
         <button
           onClick={handleLogout}
