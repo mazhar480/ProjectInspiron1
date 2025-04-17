@@ -6,20 +6,24 @@ const pool = require('../../../core/database/db');
 class AssetController {
   async createAsset(req, res) {
     try {
+      
       const {
-        name, assetTag, category, status, acquisitionDate,
-        make, model, serialNumber, location, assignedUser, department,
+        assetId, name, assetType, manufacturer, model, serialNumber,
+        status, location, owner, department, purchaseDate,
+        warrantyInformation, configurationDetails, relatedAssets,
+        assetTag, category, acquisitionDate, make, assignedUser,
         ipAddress, operatingSystem, processor, ramGb, storageType, storageCapacityGb,
-        purchasePrice, warrantyStartDate, warrantyEndDate, assetType, project, projectLocation,
-        disposalMethod, retirementDate, notes
+        purchasePrice, warrantyStartDate, warrantyEndDate, project, projectLocation,
+        disposalMethod, retirementDate, notes,
       } = req.body;
 
       const newAsset = await assetService.createAsset(
-        name, assetTag, category, status, acquisitionDate,
-        make, model, serialNumber, location, assignedUser, department,
-        ipAddress, operatingSystem, processor, ramGb, storageType, storageCapacityGb,
-        purchasePrice, warrantyStartDate, warrantyEndDate, assetType, project, projectLocation,
-        disposalMethod, retirementDate, notes
+        assetId, name, assetType, manufacturer, model, serialNumber,
+        status, location, owner, department, purchaseDate,
+        warrantyInformation, configurationDetails, relatedAssets,
+        assetTag, category, acquisitionDate, make, assignedUser, ipAddress,
+        operatingSystem, processor, ramGb, storageType, storageCapacityGb, purchasePrice,
+        warrantyStartDate, warrantyEndDate, project, projectLocation, disposalMethod, retirementDate, notes
       );
 
       res.status(201).json(newAsset);
@@ -57,21 +61,24 @@ class AssetController {
   async updateAsset(req, res) {
     const assetId = req.params.id;
     const {
-      name, assetTag, category, status, acquisitionDate,
-      make, model, serialNumber, location, assignedUser, department,
-      ipAddress, operatingSystem, processor, ramGb, storageType, storageCapacityGb,
-      purchasePrice, warrantyStartDate, warrantyEndDate, assetType, project, projectLocation,
-      disposalMethod, retirementDate, notes
+      name, assetType, manufacturer, model, serialNumber, status,
+      location, owner, department, purchaseDate, warrantyInformation,
+      configurationDetails, relatedAssets,assetTag, category, acquisitionDate,
+      make, assignedUser, ipAddress, operatingSystem, processor, ramGb,
+      storageType, storageCapacityGb, purchasePrice, warrantyStartDate,
+      warrantyEndDate, project, projectLocation, disposalMethod, retirementDate, notes,
     } = req.body;
 
     try {
       const updatedAsset = await assetService.updateAsset(
         assetId,
-        name, assetTag, category, status, acquisitionDate,
-        make, model, serialNumber, location, assignedUser, department,
-        ipAddress, operatingSystem, processor, ramGb, storageType, storageCapacityGb,
-        purchasePrice, warrantyStartDate, warrantyEndDate, assetType, project, projectLocation,
-        disposalMethod, retirementDate, notes
+        name, assetType, manufacturer, model, serialNumber,
+        status, location, owner, department, purchaseDate,
+        warrantyInformation, configurationDetails, relatedAssets,
+        assetTag, category, acquisitionDate, make, assignedUser,
+        ipAddress, operatingSystem, processor, ramGb, storageType,
+        storageCapacityGb, purchasePrice, warrantyStartDate,
+        warrantyEndDate, project, projectLocation, disposalMethod, retirementDate, notes,
       );
 
       if (updatedAsset) {
