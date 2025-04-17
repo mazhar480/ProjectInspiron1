@@ -1,242 +1,181 @@
-// Frontend/src/pages/ITAM/AssetDetailsPage.jsx
-
+// Enhanced AssetListPage.jsx with compact/spacious view toggle
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import moment from 'moment';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Chip from '@mui/material/Chip';
-import Box from '@mui/material/Box';
-
 import itamService from '../../services/itam.service';
-import axios from 'axios';
+import AssetList from '../../components/itam/AssetList';
+import { Link } from 'react-router-dom';
 
-function AssetDetailsPage() {
-  const { id } = useParams();
-  const [asset, setAsset] = useState(null);
-  const [logs, setLogs] = useState([]);
+function AssetListPage() {
+  const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortKey, setSortKey] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [compactMode, setCompactMode] = useState(true);
+  const itemsPerPage = 5;
+
+  const fetchAssets = async () => {
+    try {
+      setLoading(true);
+      const data = await itamService.getAllAssets();
+      setAssets(data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAssetAndLogs = async () => {
-      try {
-        const [assetRes, logsRes] = await Promise.all([
-          itamService.getAssetById(id),
-          axios.get(`/api/assets/${id}/logs`)
-        ]);
-        setAsset(assetRes);
-        setLogs(logsRes.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchAssets();
+  }, []);
 
-    fetchAssetAndLogs();
-  }, [id]);
+  const handleDelete = async (id) => {
+    const confirm = window.confirm('Are you sure you want to delete this asset?');
+    if (!confirm) return;
 
-  if (loading) return <div>Loading asset details...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  if (!asset) return <div>Asset not found.</div>;
+    try {
+      await itamService.deleteAsset(id);
+      setAssets(prev => prev.filter(asset => asset.id !== id));
+    } catch (err) {
+      console.error('Error deleting asset:', err);
+      alert('Failed to delete asset');
+    }
+  };
+
+  const handleSort = (key) => {
+    if (key === sortKey) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDirection('asc');
+    }
+  };
+
+  const filteredAssets = assets.filter(asset => {
+    const matchesSearch =
+      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.assetTag.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter ? asset.status === statusFilter : true;
+    const matchesCategory = categoryFilter ? asset.category === categoryFilter : true;
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
+
+  const sortedAssets = [...filteredAssets].sort((a, b) => {
+    const valA = a[sortKey]?.toString().toLowerCase() || '';
+    const valB = b[sortKey]?.toString().toLowerCase() || '';
+    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedAssets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentAssets = sortedAssets.slice(startIndex, startIndex + itemsPerPage);
+
+  const uniqueStatuses = [...new Set(assets.map(a => a.status).filter(Boolean))];
+  const uniqueCategories = [...new Set(assets.map(a => a.category).filter(Boolean))];
+
+  if (loading) return <div className="text-center py-8">Loading assets...</div>;
+  if (error) return <div className="text-center text-red-600 py-8">Error loading assets: {error.message}</div>;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Asset Details
-      </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Grid container spacing={2}>
-              {/* Display all asset details in a grid */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>ID:</strong> {asset.id}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Name:</strong> {asset.name}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Asset Tag:</strong> {asset.assetTag}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Status:</strong> {asset.status}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Category:</strong> {asset.category}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Asset Type:</strong> {asset.assetType.join(', ')}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Manufacturer:</strong> {asset.manufacturer}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Owner:</strong> {asset.owner}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Make:</strong> {asset.make}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Model:</strong> {asset.model}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Serial Number:</strong> {asset.serialNumber}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Location:</strong> {asset.location}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Assigned User:</strong> {asset.assignedUser}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Department:</strong> {asset.department}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>IP Address:</strong> {asset.ipAddress}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Operating System:</strong> {asset.operatingSystem}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Processor:</strong> {asset.processor}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>RAM (GB):</strong> {asset.ramGb}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Storage Type:</strong> {asset.storageType}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Storage Capacity (GB):</strong> {asset.storageCapacityGb}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Purchase Price:</strong> {asset.purchasePrice}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Warranty Start Date:</strong>{' '}
-                  {asset.warrantyStartDate
-                    ? moment(asset.warrantyStartDate).format('YYYY-MM-DD')
-                    : 'N/A'}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Warranty End Date:</strong>{' '}
-                  {asset.warrantyEndDate
-                    ? moment(asset.warrantyEndDate).format('YYYY-MM-DD')
-                    : 'N/A'}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Project:</strong> {asset.project}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Project Location:</strong> {asset.projectLocation}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Acquisition Date:</strong>{' '}
-                  {asset.acquisitionDate
-                    ? moment(asset.acquisitionDate).format('YYYY-MM-DD')
-                    : 'N/A'}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Warranty Information:</strong> {asset.warrantyInformation}
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Configuration Details:</strong> {asset.configurationDetails}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-      </Grid>
+    <div className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white p-6 shadow rounded-lg border border-gray-100">
+          <h3 className="text-sm text-gray-500">Total Assets</h3>
+          <p className="text-3xl font-bold text-blue-600">{assets.length}</p>
+        </div>
+      </div>
 
-      <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 4 }}>
-        <Box display="flex" alignItems="center">
-          <Typography variant="h5" component="h3" color="primary">
-          🕓
-          </Typography>
-          <Typography variant="h5" component="h3" sx={{ml: 1}}>Asset History</Typography>
-        </Box>
-      </Typography>
-      {logs.length === 0 ? (
-        <Typography variant="body1">No logs available for this asset.</Typography>
+      <div className="bg-white p-4 shadow rounded-lg mb-6 flex flex-wrap gap-4 justify-between items-center">
+        <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
+          <input
+            type="text"
+            placeholder="🔍 Search by name or tag..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 px-4 py-2 rounded w-full md:w-[250px]"
+          />
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border border-gray-300 px-3 py-2 rounded"
+          >
+            <option value="">All Statuses</option>
+            {uniqueStatuses.map(status => (
+              <option key={status} value={status}>{status}</option>
+            ))}
+          </select>
+
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="border border-gray-300 px-3 py-2 rounded"
+          >
+            <option value="">All Categories</option>
+            {uniqueCategories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-3 items-center">
+          <button
+            onClick={() => setCompactMode(!compactMode)}
+            className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded text-sm"
+          >
+            {compactMode ? 'Expand View' : 'Compact View'}
+          </button>
+
+          <button
+            onClick={fetchAssets}
+            className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded text-sm"
+          >
+            🔁 Refresh
+          </button>
+
+          <Link
+            to="/assets/new"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            ➕ Add Asset
+          </Link>
+        </div>
+      </div>
+
+      {currentAssets.length > 0 ? (
+        <AssetList
+          assets={currentAssets}
+          onDelete={handleDelete}
+          sortKey={sortKey}
+          sortDirection={sortDirection}
+          onSort={handleSort}
+          compactMode={compactMode}
+        />
       ) : (
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Action</TableCell>
-                  <TableCell>Changed By</TableCell>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Changes</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-            {logs.map((log, index) => {
-              let parsedChanges = {};
-              try {
-                parsedChanges =
-                  typeof log.changes === 'string'
-                    ? JSON.parse(log.changes)
-                    : log.changes;
-              } catch (e) {
-                console.error('Invalid JSON in log.changes', e);
-                return null; // Skip rendering for this log if JSON is invalid
-              }
-
-              const filteredChanges = Object.entries(parsedChanges).filter(
-                ([key, values]) => values.new !== null && values.new !== '' || values.old !== null && values.old !== ''
-              );
-
-              return (
-                <TableRow key={index}>
-                  <TableCell>{log.action_type}</TableCell>
-                  <TableCell>{log.changed_by}</TableCell>
-                  <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
-                  <TableCell>
-                    {filteredChanges.map(([field, values]) => (
-                      <div key={field} style={{ marginBottom: '8px' }}>
-                        <Typography variant="body2" style={{ textTransform: 'capitalize' }}>
-                          <strong>{field}:</strong>
-                        </Typography>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <Chip
-                            label={`Old: ${values.old !== null ? String(values.old) : 'N/A'}`}
-                            color="default"
-                            size="small"
-                            sx={{ mr: 1 }}
-                          />
-                          <Chip
-                            label={`New: ${values.new !== null ? String(values.new) : 'N/A'}`}
-                            color="success"
-                            size="small"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+        <div className="text-gray-500 text-center py-12">No assets match your search or filters.</div>
       )}
-    </Container>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded border ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border-gray-300'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-export default AssetDetailsPage;
+export default AssetListPage;
