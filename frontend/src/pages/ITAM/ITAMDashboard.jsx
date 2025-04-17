@@ -155,7 +155,7 @@ function ITAMDashboard() {
         { 'Project': projectName },
         { 'Date Range': dateInfo },
         { 'Exported On': dayjs().format('YYYY-MM-DD HH:mm') },
-        {}
+        // Removed the empty {} from the previous version
         { 'Metric': 'Total Assets', 'Value': kpiData.totalAssets },
       ];
 
