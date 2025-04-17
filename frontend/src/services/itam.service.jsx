@@ -32,6 +32,33 @@ const itamService = {
     },
 
     createAsset: async (assetData) => {
+      // Map frontend form data to backend asset data structure
+      const backendAssetData = {
+        ...assetData,
+        assetId: assetData.assetId, 
+        assetType: assetData.assetType,
+        manufacturer: assetData.manufacturer,
+        owner: assetData.owner,
+        warrantyInformation: assetData.warrantyInformation,
+        configurationDetails: assetData.configurationDetails,
+        relatedAssets: assetData.relatedAssets,
+      };
+        try {
+            const response = await axios.post(API_BASE_URL, backendAssetData);
+            return response.data;
+        } catch (error) {
+            console.error('Error creating asset:', error);
+            throw error;
+        }
+    },
+
+
+    updateAsset: async (id, assetData) => {
+      const backendAssetData = {...assetData, assetId: assetData.assetId,assetType: assetData.assetType,manufacturer: assetData.manufacturer,owner: assetData.owner,warrantyInformation: assetData.warrantyInformation,configurationDetails: assetData.configurationDetails,relatedAssets: assetData.relatedAssets};
+
+
+
+    createAsset: async (assetData) => {
         try {
             const response = await axios.post(API_BASE_URL, assetData);
             return response.data;

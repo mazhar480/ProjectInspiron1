@@ -6,6 +6,12 @@ function AssetForm({ initialValues = {}, onSubmit }) {
     assetTag: '',
     category: '',
     status: '',
+    assetId: '', // New field
+    assetType: '', // New field
+    manufacturer: '', // New field
+    owner: '', // New field
+    warrantyInformation: '', // New field
+    configurationDetails: '', // New field
     acquisitionDate: '',
     assetType: '',
   });
@@ -15,6 +21,12 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       name: initialValues.name || '',
       assetTag: initialValues.assetTag || '',
       category: initialValues.category || '',
+      assetId: initialValues.assetId || '', // New field
+      assetType: initialValues.assetType || '', // New field
+      manufacturer: initialValues.manufacturer || '', // New field
+      owner: initialValues.owner || '', // New field
+      warrantyInformation: initialValues.warrantyInformation || '', // New field
+      configurationDetails: initialValues.configurationDetails || '', // New field
       status: initialValues.status || '',
       acquisitionDate: initialValues.acquisitionDate?.split('T')[0] || '',
       assetType: initialValues.assetType || '',
@@ -38,6 +50,12 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         { label: 'Asset Tag', name: 'assetTag' },
         { label: 'Category', name: 'category' },
         { label: 'Status', name: 'status' },
+        { label: 'Asset ID', name: 'assetId' }, // New field
+        { label: 'Manufacturer', name: 'manufacturer' }, // New field
+        { label: 'Owner', name: 'owner' }, // New field
+        
+
+      
         { label: 'Asset Type', name: 'assetType' },
       ].map(({ label, name }) => (
         <div key={name}>
@@ -63,6 +81,30 @@ function AssetForm({ initialValues = {}, onSubmit }) {
           required
         />
       </div>
+
+       <div>
+        <label className="block mb-1 font-medium">Warranty Information</label>
+        <textarea
+          name="warrantyInformation"
+          value={formData.warrantyInformation}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
+      <div>
+        <label className="block mb-1 font-medium">Configuration Details</label>
+        <textarea
+          name="configurationDetails"
+          value={formData.configurationDetails}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
+
+
+
+
+      
 
       <button
         type="submit"
