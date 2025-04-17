@@ -60,6 +60,11 @@ const itamService = {
           purchasePrice: assetData.purchasePrice || null,
           warrantyStartDate: assetData.warrantyStartDate || null,
           warrantyEndDate: assetData.warrantyEndDate || null,
+          project: assetData.project || null,
+          projectLocation: assetData.projectLocation || null,
+          disposalMethod: assetData.disposalMethod || null,
+          retirementDate: assetData.retirementDate || null,
+          notes: assetData.notes || null,
         };
       console.log('backendAssetData:', backendAssetData);
         try {

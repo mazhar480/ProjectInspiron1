@@ -14,6 +14,23 @@ function AssetForm({ initialValues = {}, onSubmit }) {
     configurationDetails: '', // New field
     acquisitionDate: '',
     assetType: '',
+    make: '',
+    model: '',
+    serialNumber: '',
+    location: '',
+    assignedUser: '',
+    department: '',
+    ipAddress: '',
+    operatingSystem: '',
+    processor: '',
+    ramGb: '',
+    storageType: '',
+    storageCapacityGb: '',
+    purchasePrice: '',
+    warrantyStartDate: '',
+    warrantyEndDate: '',
+    project: '',
+    projectLocation: '',
   });
 
   useEffect(() => {
@@ -30,6 +47,23 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       status: initialValues.status || '',
       acquisitionDate: initialValues.acquisitionDate?.split('T')[0] || '',
       assetType: initialValues.assetType || '',
+      make: initialValues.make || '',
+      model: initialValues.model || '',
+      serialNumber: initialValues.serialNumber || '',
+      location: initialValues.location || '',
+      assignedUser: initialValues.assignedUser || '',
+      department: initialValues.department || '',
+      ipAddress: initialValues.ipAddress || '',
+      operatingSystem: initialValues.operatingSystem || '',
+      processor: initialValues.processor || '',
+      ramGb: initialValues.ramGb || '',
+      storageType: initialValues.storageType || '',
+      storageCapacityGb: initialValues.storageCapacityGb || '',
+      purchasePrice: initialValues.purchasePrice || '',
+      warrantyStartDate: initialValues.warrantyStartDate || '',
+      warrantyEndDate: initialValues.warrantyEndDate || '',
+      project: initialValues.project || '',
+      projectLocation: initialValues.projectLocation || '',
     });
   }, [initialValues]);
 
@@ -53,9 +87,27 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         { label: 'Asset ID', name: 'assetId' }, // New field
         { label: 'Manufacturer', name: 'manufacturer' }, // New field
         { label: 'Owner', name: 'owner' }, // New field
-        
+        { label: 'Make', name: 'make' },
+        { label: 'Model', name: 'model' },
+        { label: 'Serial Number', name: 'serialNumber' },
+        { label: 'Location', name: 'location' },
+        { label: 'Assigned User', name: 'assignedUser' },
+        { label: 'Department', name: 'department' },
+        { label: 'IP Address', name: 'ipAddress' },
+        { label: 'Operating System', name: 'operatingSystem' },
+        { label: 'Processor', name: 'processor' },
+        { label: 'RAM (GB)', name: 'ramGb' },
+        { label: 'Storage Type', name: 'storageType' },
+        { label: 'Storage Capacity (GB)', name: 'storageCapacityGb' },
+        { label: 'Purchase Price', name: 'purchasePrice' },
+        { label: 'Warranty Start Date', name: 'warrantyStartDate' },
+        { label: 'Warranty End Date', name: 'warrantyEndDate' },
+        { label: 'Project', name: 'project' },
+        { label: 'Project Location', name: 'projectLocation' },
 
-      
+       
+
+
         { label: 'Asset Type', name: 'assetType' },
       ].map(({ label, name }) => (
         <div key={name}>
@@ -82,6 +134,25 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         />
       </div>
 
+<div>
+<label className="block mb-1 font-medium">Disposal Method</label>
+<input
+  name="disposalMethod"
+  value={formData.disposalMethod}
+  onChange={handleChange}
+  className="w-full border px-3 py-2 rounded"
+/>
+</div>
+<div>
+<label className="block mb-1 font-medium">Retirement Date</label>
+<input
+  type="date"
+  name="retirementDate"
+  value={formData.retirementDate}
+  onChange={handleChange}
+  className="w-full border px-3 py-2 rounded"
+/>
+</div>
        <div>
         <label className="block mb-1 font-medium">Warranty Information</label>
         <textarea
@@ -101,10 +172,17 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         />
       </div>
 
+<div>
+<label className="block mb-1 font-medium">Notes</label>
+<textarea
+  name="notes"
+  value={formData.notes}
+  onChange={handleChange}
+  className="w-full border px-3 py-2 rounded"
+/>
+</div>
 
 
-
-      
 
       <button
         type="submit"
