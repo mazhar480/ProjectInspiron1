@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // File: src/pages/itam/ITAMDashboard.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -36,13 +37,14 @@ function ITAMDashboard() {
   const [exportFormat, setExportFormat] = useState('pdf');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user') || '{}'); // Get user info
 
   const fetchKpiData = async (filters = {}) => {
     try {
       setLoading(true);
       const [assets, logs] = await Promise.all([
         itamService.getAllAssets(filters),
-        itamService.getAllLogs()
+        itamService.getAllLogs() // Consider filtering logs if needed
       ]);
 
       const totalAssets = assets.length;
@@ -63,15 +65,19 @@ function ITAMDashboard() {
         return acc;
       }, {});
 
+      // Map logs more carefully to include relevant info
       const recentActivities = logs.slice(0, 5).map(log => ({
+        id: log.id, // Assuming logs have an ID
         action: log.action_type,
-        time: new Date(log.timestamp).toLocaleString(),
-        changes: log.changes,
+        time: dayjs(log.timestamp).format('YYYY-MM-DD HH:mm'), // Format date
+        details: log.details || 'No details', // Include details if available
+        user: log.userId ? `User ${log.userId}` : 'System' // Identify user if available
       }));
 
       setKpiData({ totalAssets, assetsByStatus, assetsByCategory, recentActivities });
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      console.error('Failed to fetch KPI data:', err); // Log the error
+      setError(err.response?.data?.message || err.message || 'An error occurred while loading dashboard data.');
     } finally {
       setLoading(false);
     }
@@ -84,58 +90,95 @@ function ITAMDashboard() {
         setProjects(data);
       } catch (err) {
         console.error('Failed to load projects:', err);
+        // Optionally set an error state for projects loading
       }
     };
 
     loadProjects();
-    fetchKpiData();
+    fetchKpiData(); // Initial fetch without filters
   }, []);
 
   useEffect(() => {
     const found = projects.find(p => p.projectId === selectedProject);
-    setProjectName(found ? found.projectName : 'AllProjects');
+    setProjectName(found ? found.projectName : 'All Projects');
   }, [selectedProject, projects]);
 
   const handleFilterApply = () => {
     fetchKpiData({
       projectId: selectedProject,
-      fromDate: dateRange.from,
-      toDate: dateRange.to
+      fromDate: dateRange.from || undefined, // Pass undefined if empty
+      toDate: dateRange.to || undefined // Pass undefined if empty
     });
   };
 
   const handleExport = () => {
-    const fileSuffix = `${projectName}_${dayjs().format('YYYYMMDD')}`;
+    const fileSuffix = `${projectName.replace(/\s+/g, '')}_${dayjs().format('YYYYMMDDHHmm')}`;
+    const exportTitle = `ITAM Dashboard Report`;
+    const projectInfo = `Project: ${projectName}`;
+    const dateInfo = `Date Range: ${dateRange.from || 'Start'} to ${dateRange.to || 'End'}`;
+
     if (exportFormat === 'pdf') {
-      html2canvas(dashboardRef.current).then((canvas) => {
+      html2canvas(dashboardRef.current, { scale: 2 }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
-        const width = pdf.internal.pageSize.getWidth();
-        const height = (canvas.height * width) / canvas.width;
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pdfWidth - 20; // Add margin
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let position = 0;
 
-        pdf.setFontSize(12);
-        pdf.text(`MetaMates Group`, 10, 10);
-        pdf.text(`Project: ${projectName}`, 10, 18);
-        pdf.text(`Date Range: ${dateRange.from || '-'} to ${dateRange.to || '-'}`, 10, 26);
-        pdf.addImage(imgData, 'PNG', 0, 30, width, height);
+        pdf.setFontSize(16);
+        pdf.text(exportTitle, 10, 15);
+        pdf.setFontSize(10);
+        pdf.text(projectInfo, 10, 22);
+        pdf.text(dateInfo, 10, 27);
+        pdf.text(`Exported on: ${dayjs().format('YYYY-MM-DD HH:mm')}`, 10, 32);
+
+        // Adjust image position based on text height
+        position = 40; // Start image after header
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+
+        // Handle multi-page PDF if content exceeds one page
+        let heightLeft = imgHeight;
+        while (heightLeft >= pdfHeight - position - 10) { // Check if content needs new page
+          pdf.addPage();
+          position = 10; // Reset position for new page
+          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+          heightLeft -= (pdfHeight - position - 10);
+        }
+
         pdf.save(`ITAM_Dashboard_${fileSuffix}.pdf`);
       });
-    } else {
-      const statusSheet = Object.entries(kpiData.assetsByStatus).map(([k, v]) => ({ Status: k, Count: v }));
-      const categorySheet = Object.entries(kpiData.assetsByCategory).map(([k, v]) => ({ Category: k, Count: v }));
+    } else { // Excel Export
+      const overviewData = [
+        { 'Report': exportTitle },
+        { 'Project': projectName },
+        { 'Date Range': dateInfo },
+        { 'Exported On': dayjs().format('YYYY-MM-DD HH:mm') },
+        {}
+        { 'Metric': 'Total Assets', 'Value': kpiData.totalAssets },
+      ];
+
+      const statusData = Object.entries(kpiData.assetsByStatus).map(([Status, Count]) => ({ Status, Count }));
+      const categoryData = Object.entries(kpiData.assetsByCategory).map(([Category, Count]) => ({ Category, Count }));
+      const activityData = kpiData.recentActivities.map(act => ({ Time: act.time, User: act.user, Action: act.action, Details: act.details }));
 
       const wb = XLSX.utils.book_new();
-      const ws1 = XLSX.utils.json_to_sheet([
-        { 'Total Assets': kpiData.totalAssets },
-        { 'Project': projectName },
-        { 'Date Range': `${dateRange.from || '-'} to ${dateRange.to || '-'}` }
-      ]);
-      const ws2 = XLSX.utils.json_to_sheet(statusSheet);
-      const ws3 = XLSX.utils.json_to_sheet(categorySheet);
+      const wsOverview = XLSX.utils.json_to_sheet(overviewData, { skipHeader: true });
+      const wsStatus = XLSX.utils.json_to_sheet(statusData);
+      const wsCategory = XLSX.utils.json_to_sheet(categoryData);
+      const wsActivity = XLSX.utils.json_to_sheet(activityData);
 
-      XLSX.utils.book_append_sheet(wb, ws1, 'Overview');
-      XLSX.utils.book_append_sheet(wb, ws2, 'By Status');
-      XLSX.utils.book_append_sheet(wb, ws3, 'By Category');
+      // Set column widths (optional but recommended)
+      wsOverview['!cols'] = [{ wch: 20 }, { wch: 20 }];
+      wsStatus['!cols'] = [{ wch: 20 }, { wch: 10 }];
+      wsCategory['!cols'] = [{ wch: 20 }, { wch: 10 }];
+      wsActivity['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 30 }, { wch: 40 }];
+
+      XLSX.utils.book_append_sheet(wb, wsOverview, 'Overview');
+      XLSX.utils.book_append_sheet(wb, wsStatus, 'Assets by Status');
+      XLSX.utils.book_append_sheet(wb, wsCategory, 'Assets by Category');
+      XLSX.utils.book_append_sheet(wb, wsActivity, 'Recent Activities');
 
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `ITAM_Dashboard_${fileSuffix}.xlsx`);
@@ -150,23 +193,26 @@ function ITAMDashboard() {
           <Typography variant="h6" gutterBottom>{title}</Typography>
           {chartData.length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              No data available for this chart.
+              No data available.
             </Typography>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
-                  outerRadius={80}
-                  label
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                 >
                   {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value, name) => [value, name]} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -177,31 +223,32 @@ function ITAMDashboard() {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1">
           IT Asset Management Dashboard
         </Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          <FormControl size="small">
-            <Select value={exportFormat} onChange={(e) => setExportFormat(e.target.value)}>
-              <MenuItem value="pdf">Export as PDF</MenuItem>
-              <MenuItem value="excel">Export as Excel</MenuItem>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Export</InputLabel>
+            <Select value={exportFormat} label="Export" onChange={(e) => setExportFormat(e.target.value)}>
+              <MenuItem value="pdf">PDF</MenuItem>
+              <MenuItem value="excel">Excel</MenuItem>
             </Select>
           </FormControl>
-          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExport}>
+          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExport} disabled={loading}>
             Export
           </Button>
         </Stack>
       </Box>
 
-      <Box ref={dashboardRef}>
-        {/* Filters */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={4}>
+      {/* Filters Section */}
+      <Card sx={{ mb: 3, p: 2 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={4}>
             <FormControl fullWidth size="small">
-              <InputLabel id="project-label">Project</InputLabel>
+              <InputLabel>Project</InputLabel>
               <Select
-                labelId="project-label"
                 value={selectedProject}
                 label="Project"
                 onChange={(e) => setSelectedProject(e.target.value)}
@@ -215,9 +262,9 @@ function ITAMDashboard() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={6} sm={3} md={3}>
             <TextField
-              label="From"
+              label="From Date"
               type="date"
               size="small"
               fullWidth
@@ -226,9 +273,9 @@ function ITAMDashboard() {
               onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
             />
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={6} sm={3} md={3}>
             <TextField
-              label="To"
+              label="To Date"
               type="date"
               size="small"
               fullWidth
@@ -238,41 +285,55 @@ function ITAMDashboard() {
             />
           </Grid>
           <Grid item xs={12} md={2}>
-            <Button variant="contained" fullWidth sx={{ height: '100%' }} onClick={handleFilterApply}>
+            <Button variant="contained" fullWidth sx={{ height: '100%' }} onClick={handleFilterApply} disabled={loading}>
               Apply Filters
             </Button>
           </Grid>
         </Grid>
+      </Card>
 
+      {/* Dashboard Content Area */}      
+      <Box ref={dashboardRef}>
         {loading ? (
-          <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+             <CircularProgress />
+          </Box>
         ) : error ? (
-          <Typography color="error">Error: {error}</Typography>
+          <Typography color="error" sx={{ textAlign: 'center', my: 4 }}>{error}</Typography>
         ) : (
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
-              <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
-                <Avatar sx={{ bgcolor: '#1976d2', mr: 2 }}>
-                  <DashboardIcon />
+            {/* KPI Card */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Card sx={{ display: 'flex', alignItems: 'center', p: 2, height: '100%' }}>
+                <Avatar sx={{ bgcolor: 'primary.main', mr: 2, width: 56, height: 56 }}>
+                  <DashboardIcon fontSize="large" />
                 </Avatar>
                 <Box>
-                  <Typography variant="subtitle1">Total Assets</Typography>
-                  <Typography variant="h5">{kpiData.totalAssets}</Typography>
+                  <Typography variant="h6" color="text.secondary">Total Assets</Typography>
+                  <Typography variant="h4" component="div">{kpiData.totalAssets}</Typography>
                 </Box>
               </Card>
             </Grid>
-            <Grid item xs={12} md={4}>{renderPieChart('Assets by Status', kpiData.assetsByStatus)}</Grid>
-            <Grid item xs={12} md={4}>{renderPieChart('Assets by Category', kpiData.assetsByCategory)}</Grid>
+
+            {/* Pie Charts */}
+            <Grid item xs={12} sm={6} md={4}>{renderPieChart('Assets by Status', kpiData.assetsByStatus)}</Grid>
+            <Grid item xs={12} sm={6} md={4}>{renderPieChart('Assets by Category', kpiData.assetsByCategory)}</Grid>
+
+            {/* Recent Activities */}
             <Grid item xs={12}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>Recent Activities</Typography>
                   {kpiData.recentActivities.length > 0 ? (
-                    <Stack spacing={1}>
-                      {kpiData.recentActivities.map((activity, index) => (
-                        <Box key={index}>
-                          <Typography variant="body2">{activity.action}</Typography>
-                          <Chip label={activity.time} size="small" sx={{ mt: 0.5 }} />
+                    <Stack spacing={1.5}>
+                      {kpiData.recentActivities.map((activity) => (
+                        <Box key={activity.id || activity.time} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', pb: 1 }}>
+                          <Box>
+                              <Typography variant="body2" component="span">{activity.action}</Typography>
+                              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}> by {activity.user}</Typography>
+                              <Typography variant="body2" sx={{ mt: 0.5 }}>{activity.details}</Typography>
+                          </Box>
+                          <Chip label={activity.time} size="small" variant="outlined" />
                         </Box>
                       ))}
                     </Stack>
@@ -282,8 +343,10 @@ function ITAMDashboard() {
                 </CardContent>
               </Card>
             </Grid>
+
+            {/* Action Buttons */}
             <Grid item xs={12}>
-              <Stack direction="row" spacing={2}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-start">
                 <Button variant="contained" startIcon={<ListAltIcon />} component={Link} to="/itam/assets">
                   View Asset List
                 </Button>
@@ -291,8 +354,14 @@ function ITAMDashboard() {
                   Register New Asset
                 </Button>
                 <Button variant="outlined" startIcon={<SettingsIcon />} component={Link} to="/itam/settings">
-                ITAM Settings
-              </Button>
+                  ITAM Settings
+                </Button>
+                {/* Conditionally render Custom Settings button for admin */}                
+                {user.role === 'admin' && (
+                    <Button variant="outlined" startIcon={<SettingsIcon />} component={Link} to="/itam/settings/custom">
+                        Custom Settings
+                    </Button>
+                )}
               </Stack>
             </Grid>
           </Grid>
