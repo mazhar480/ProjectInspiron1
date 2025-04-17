@@ -43,15 +43,9 @@ function App() {
                     <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                     
                     {/* ITAM Routes */}
-                    <Route path="/itam/dashboard" element={
-                        <PrivateRoute>
-                            <ITAMDashboard />
-                        </PrivateRoute>
-                    } />
-                    <Route path="/assets/:id/edit" element={<PrivateRoute><AssetFormPage /></PrivateRoute>} />
-                    <Route path="/assets/:id" element={<PrivateRoute><AssetDetailsPage /></PrivateRoute>} />
-                    <Route path="/assets/new" element={<PrivateRoute><AssetFormPage /></PrivateRoute>} />
-                    <Route path="/assets" element={<PrivateRoute><AssetListPage /></PrivateRoute>} />
+                    <Route path="/itam/dashboard" element={<ITAMDashboard />} />
+                   
+                   
                     
                     {/* Default Route */}
                     <Route path="*" element={<div>404 Not Found</div>} />
