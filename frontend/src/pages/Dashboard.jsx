@@ -24,7 +24,7 @@ function Dashboard() {
         <Link to="/itam/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
           <Boxes />
             ITAM
-        </div>
+        </Link>
         <button
           onClick={handleLogout}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
