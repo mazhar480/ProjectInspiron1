@@ -7,6 +7,7 @@ import AssetListPage from './pages/ITAM/AssetListPage';
 import AssetDetailsPage from './pages/ITAM/AssetDetailsPage';
 import AssetFormPage from './pages/ITAM/AssetFormPage';
 import ITAMDashboard from './pages/ITAM/ITAMDashboard';
+import SidebarLayout from './components/SidebarLayout';
 import './index.css';
 
 const isAuthenticated = () => {
@@ -27,25 +28,27 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+  {/* Public Routes */}
+  <Route path="/register" element={<Register />} />
+  <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes */}
-        <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+  {/* Protected Routes */}
+  <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+  <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
 
-        {/* ITAM Nested Routes */}
-        <Route path="/itam/dashboard" element={<PrivateRoute><ITAMDashboard /></PrivateRoute>}>
-          <Route path="assets" element={<AssetListPage />} />
-          <Route path="assets/new" element={<AssetFormPage />} />
-          <Route path="assets/:id" element={<AssetDetailsPage />} />
-          <Route path="assets/:id/edit" element={<AssetFormPage />} />
-        </Route>
+  {/* ITAM with Sidebar Layout */}
+  <Route path="/itam" element={<PrivateRoute><SidebarLayout /></PrivateRoute>}>
+    <Route path="dashboard" element={<ITAMDashboard />} />
+    <Route path="assets" element={<AssetListPage />} />
+    <Route path="assets/new" element={<AssetFormPage />} />
+    <Route path="assets/:id" element={<AssetDetailsPage />} />
+    <Route path="assets/:id/edit" element={<AssetFormPage />} />
+  </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<div>404 Not Found</div>} />
-      </Routes>
+  {/* Fallback */}
+  <Route path="*" element={<div>404 Not Found</div>} />
+</Routes>
+
     </BrowserRouter>
   );
 }

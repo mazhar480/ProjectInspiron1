@@ -19,6 +19,17 @@ const itamService = {
         const response = await axios.get(`/api/assets/${id}/logs`);
         return response.data;
       },
+      // Fetch all logs for the dashboard view
+getAllLogs: async () => {
+    try {
+        const response = await axios.get('/api/assets/logs'); // 👈 adjust route as needed
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching asset logs:', error);
+        return [];
+    }
+},
+
       
 
     getAssetById: async (id) => {
@@ -30,6 +41,7 @@ const itamService = {
             throw error;
         }
     },
+    
     
     createAsset: async (assetData) => {
         // Map frontend form data to backend asset data structure
