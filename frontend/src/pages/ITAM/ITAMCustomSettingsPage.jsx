@@ -5,10 +5,12 @@ import {
   IconButton, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';import { useNavigate } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
 
 import EditIcon from '@mui/icons-material/Edit';
 
 function ITAMCustomSettingsPage() {
+  const API_BASE_URL = '/api'; // Replace with your backend API base URL
   const [tabValue, setTabValue] = useState(0);
   const [customAssetTypes, setCustomAssetTypes] = useState([]);
   const [customAssetStatuses, setCustomAssetStatuses] = useState([]);
@@ -17,24 +19,46 @@ function ITAMCustomSettingsPage() {
   const [editingAssetType, setEditingAssetType] = useState(null);
   const [editingAssetStatus, setEditingAssetStatus] = useState(null);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  // Placeholder for fetching custom settings from the backend
-  const fetchCustomSettings = () => {
-    // In a real app, this would make an API call
-    return Promise.resolve({
-      assetTypes: ['Custom Laptop', 'Custom Server'],
-      assetStatuses: ['In Stock', 'Awaiting Approval'],
-    });
+  const fetchCustomSettings = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/itam/settings/custom`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setCustomAssetTypes(response.data.assetTypes || []);
+        setCustomAssetStatuses(response.data.assetStatuses || []);
+      }
+    } catch (error) {
+      console.error('Error fetching custom settings:', error);
+      // Handle error, e.g., show a message to the user
+    }
   };
 
-  // Placeholder for saving custom settings to the backend
-  const saveCustomSettings = (newSettings) => {
-    // In a real app, this would make an API call
-    console.log("Saving custom settings:", newSettings);
-    // For now, we'll just update the local state
-    setCustomAssetTypes(newSettings.assetTypes);
-    setCustomAssetStatuses(newSettings.assetStatuses);
+  const saveCustomSettings = async (newSettings) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/itam/settings/custom`,
+        newSettings,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log('Custom settings saved successfully');
+        alert('Custom settings updated successfully');
+      }
+    } catch (error) {
+      console.error('Error saving custom settings:', error);
+      alert('Error saving settings');
+    }
   };
 
   useEffect(() => {
