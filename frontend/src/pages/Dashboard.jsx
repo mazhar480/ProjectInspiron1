@@ -11,25 +11,27 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Navigation Bar */}
-      <nav className="bg-blue-800 p-4 flex items-center justify-between text-white">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold">Inspiron 1</h1> 
-          <Link to="/itam/dashboard" className="hover:text-gray-300">
+      <nav className="bg-blue-500 p-6 flex items-center justify-between text-white shadow-md">
+        <div className="flex items-center space-x-6">
+          <h1 className="text-2xl font-bold">Inspiron 1</h1>
+          <Link to="/itam/dashboard" className="hover:text-gray-200">
             ITAM
           </Link>
         </div>
-        <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-            Logout
-          </button>
+        <button
+          onClick={handleLogout}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Logout
+        </button>
       </nav>
 
       {/* Main Content */}
-      <div className="p-6">
-        <p>Welcome to the dashboard! (Protected route)</p>
+      <div className="p-8 flex-grow">
+        <p className="text-gray-700">Welcome to the dashboard! (Protected route)</p>
       </div>
-
     </div>
   );
 }
