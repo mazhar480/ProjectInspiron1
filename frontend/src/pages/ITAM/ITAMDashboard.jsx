@@ -56,68 +56,72 @@ function ITAMDashboard() {
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        IT Asset Management Dashboard
-      </Typography>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4, }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          IT Asset Management Dashboard
+        </Typography>
+      </Box>
       {loading && <Typography>Loading...</Typography>}
-      {error && <Typography color="error">Error: {error}</Typography>}
+      {error && (
+        <Typography color="error">Error: {error}</Typography>
+      )}
       <Grid container spacing={3}>
         {/* KPI Cards */}
         <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">
-                Total Assets
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h5" component="div" gutterBottom>
+                Total Assets                
               </Typography>
-              <Typography variant="h4">
-                {kpiData.totalAssets}
+              <Typography variant="h3" >
+                {kpiData.totalAssets}                
               </Typography>
             </CardContent>
-          </Card>
+          </Card>          
         </Grid>
         <Grid item xs={12} md={3}>
-            {Object.entries(kpiData.assetsByStatus).map(([status, count]) => (
-                <Grid key={status} item xs={12} md={12}>
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h6">{`Assets by ${status}`}</Typography>
-                            <Typography variant="h4">{count}</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            ))}
-        </Grid>
-        <Grid item xs={12} md={3}>
-        {Object.entries(kpiData.assetsByCategory).map(([category, count]) => (
-            <Grid key={category} item xs={12} md={12}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="h6">{`Assets by ${category}`}</Typography>
-                        <Typography variant="h4">{count}</Typography>
-                    </CardContent>
-                </Card>
+          {Object.entries(kpiData.assetsByStatus).map(([status, count]) => (
+            <Grid key={status} item xs={12} md={12}>
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h5" gutterBottom>{`Assets by ${status}`}</Typography>
+                  <Typography variant="h3" >{count}</Typography>
+                </CardContent>
+              </Card>
             </Grid>
-        ))}
+          ))}
         </Grid>
         <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" component="h2">
+          {Object.entries(kpiData.assetsByCategory).map(([category, count]) => (
+            <Grid key={category} item xs={12} md={12}>
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h5" gutterBottom>{`Assets by ${category}`}</Typography>
+                  <Typography variant="h3" >{count}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
                 Other Metrics
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h3">
                 Data: Available
               </Typography>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Summary Information */}
-        <Grid item xs={12} >
-          <Card>
-            <CardContent>
-              <Typography variant="h6" component="h2">
+        {/* Summary Information */}        
+        <Grid item xs={12}>
+          <Card sx={{ mt: 4 }}>
+            <CardContent sx={{p:3}}>
+              <Typography variant="h5" component="h2" gutterBottom>
                 Recent Activities
               </Typography>
               <Typography variant="body1" component="div">
