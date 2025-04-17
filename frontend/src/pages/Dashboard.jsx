@@ -15,16 +15,16 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Navigation Bar */}
       <nav className="bg-blue-500 p-6 flex items-center justify-between text-white shadow-md">
-        <div className="flex items-center space-x-6">
-          <h1 className="text-2xl font-bold">Inspiron 1</h1>
-          <Link to="/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
-            <LayoutDashboard />
-            Dashboard
-          </Link>
-          <Link to="/itam/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
-            <Boxes />
-            ITAM
-          </Link>
+        <div className="flex items-center space-x-6">        
+            <h1 className="text-2xl font-bold">Inspiron 1</h1>
+            <Link to="/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
+              <LayoutDashboard />
+              Dashboard
+            </Link>
+            <Link to="/itam/dashboard" className="hover:text-gray-200 flex items-center space-x-2">
+              <Boxes />
+              ITAM
+            </Link>
         </div>
         <button
           onClick={handleLogout}
