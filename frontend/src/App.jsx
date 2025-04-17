@@ -1,8 +1,8 @@
 // Frontend/src/App.js
 
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Register from './pages/Register';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Register from './pages/Register'; 
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AssetListPage from './pages/ITAM/AssetListPage';
@@ -18,9 +18,14 @@ const isAuthenticated = () => {
     return !!user; // Returns true if user exists, false otherwise
   };
 
-  // PrivateRoute component for protected routes
-  const PrivateRoute = ({ children }) => {
-    return isAuthenticated() ? children : <Navigate to="/login" />;
+ // PrivateRoute component for protected routes
+ const PrivateRoute = ({ children }) => {
+    const location = useLocation();
+    if (!isAuthenticated()) {
+        localStorage.setItem('redirectUrl', location.pathname);
+        return <Navigate to="/login" />;
+    }
+    return children;
   };
 
 function App() {
