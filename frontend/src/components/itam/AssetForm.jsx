@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
 function AssetForm({ initialValues = {}, onSubmit }) {
+  const assetTypeOptions = [
+    'Hardware',
+    'Software',
+    'License',
+    'Other',
+  ];
+
+
   const [formData, setFormData] = useState({
     name: '',
     assetTag: '',
@@ -8,7 +16,7 @@ function AssetForm({ initialValues = {}, onSubmit }) {
     status: '',
     assetId: '', // New field
     assetType: '', // New field
-    manufacturer: '', // New field
+     manufacturer: '', // New field
     owner: '', // New field
     warrantyInformation: '', // New field
     configurationDetails: '', // New field
@@ -40,7 +48,7 @@ function AssetForm({ initialValues = {}, onSubmit }) {
       category: initialValues.category || '',
       assetId: initialValues.assetId || '', // New field
       assetType: initialValues.assetType || '', // New field
-      manufacturer: initialValues.manufacturer || '', // New field
+       manufacturer: initialValues.manufacturer || '', // New field
       owner: initialValues.owner || '', // New field
       warrantyInformation: initialValues.warrantyInformation || '', // New field
       configurationDetails: initialValues.configurationDetails || '', // New field
@@ -68,8 +76,24 @@ function AssetForm({ initialValues = {}, onSubmit }) {
   }, [initialValues]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+     const { name, value, type, checked } = e.target;
+    if (name === 'assetType') {
+      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+        setFormData(prev => ({ ...prev, [name]: selectedOptions }));
+    }else if (type === 'checkbox') {
+
+      const selectedTypes = formData.assetType
+        ? [...formData.assetType]
+        : [];
+      if (checked) {
+        selectedTypes.push(value);
+      } else {
+        selectedTypes.splice(selectedTypes.indexOf(value), 1);
+      }
+      setFormData(prev => ({ ...prev, assetType: selectedTypes }));
+    } else {
+       setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -104,12 +128,10 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         { label: 'Warranty End Date', name: 'warrantyEndDate' },
         { label: 'Project', name: 'project' },
         { label: 'Project Location', name: 'projectLocation' },
-
-       
-
-
-        { label: 'Asset Type', name: 'assetType' },
       ].map(({ label, name }) => (
+        
+
+        
         <div key={name}>
           <label className="block mb-1 font-medium">{label}</label>
           <input
@@ -126,6 +148,33 @@ function AssetForm({ initialValues = {}, onSubmit }) {
           />
         </div>
       ))}
+      <div>
+
+  <label className="block mb-1 font-medium">Asset Type</label>
+  <select
+    name="assetType"
+    multiple={true}
+    value={formData.assetType}
+    onChange={handleChange}
+    className="w-full border px-3 py-2 rounded"
+    >
+    {assetTypeOptions.map((option) => (
+        <option key={option} value={option}>
+        {option}
+        </option>
+    ))}
+    </select>
+
+    
+     </div>
+        
+
+     
+
+
+
+
+
 
       <div>
         <label  className="block mb-1 font-medium">Acquisition Date</label>
@@ -139,43 +188,43 @@ function AssetForm({ initialValues = {}, onSubmit }) {
         />
       </div>
 
-<div>
-<label className="block mb-1 font-medium">Disposal Method</label>
-<input
-  name="disposalMethod"
-  value={formData.disposalMethod}
-  onChange={handleChange}
-  className="w-full border px-3 py-2 rounded"
-/>
-</div>
-<div>
-<label className="block mb-1 font-medium">Retirement Date</label>
-<input
-  type="date"
-  name="retirementDate"
-  value={formData.retirementDate}
-  onChange={handleChange}
-  className="w-full border px-3 py-2 rounded"
-/>
-</div>
-       <div>
-        <label className="block mb-1 font-medium">Warranty Information</label>
-        <textarea
-          name="warrantyInformation"
-          value={formData.warrantyInformation}
+      <div>
+        <label className="block mb-1 font-medium">Disposal Method</label>
+        <input
+          name="disposalMethod"
+          value={formData.disposalMethod}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Configuration Details</label>
-        <textarea
-          name="configurationDetails"
-          value={formData.configurationDetails}
+        <label className="block mb-1 font-medium">Retirement Date</label>
+        <input
+          type="date"
+          name="retirementDate"
+          value={formData.retirementDate}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         />
       </div>
+      <div>
+          <label className="block mb-1 font-medium">Warranty Information</label>
+          <textarea
+            name="warrantyInformation"
+            value={formData.warrantyInformation}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Configuration Details</label>
+          <textarea
+            name="configurationDetails"
+            value={formData.configurationDetails}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
+        </div>
 
 <div>
 <label className="block mb-1 font-medium">Notes</label>
@@ -185,9 +234,6 @@ function AssetForm({ initialValues = {}, onSubmit }) {
   onChange={handleChange}
   className="w-full border px-3 py-2 rounded"
 />
-</div>
-
-
 
       <button
         type="submit"
