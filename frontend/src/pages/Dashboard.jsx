@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; 
 import { useNavigate, Link } from 'react-router-dom';
 
 function Dashboard() {
@@ -11,19 +11,25 @@ function Dashboard() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
+    <div className="min-h-screen bg-gray-100">
+      {/* Navigation Bar */}
+      <nav className="bg-blue-800 p-4 flex items-center justify-between text-white">
+        <div className="flex items-center space-x-4">
+          <h1 className="text-xl font-semibold">Inspiron 1</h1> 
+          <Link to="/itam/dashboard" className="hover:text-gray-300">
+            ITAM
+          </Link>
+        </div>
         <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-          Logout
-        </button>
+            Logout
+          </button>
+      </nav>
+
+      {/* Main Content */}
+      <div className="p-6">
+        <p>Welcome to the dashboard! (Protected route)</p>
       </div>
-      <p>Welcome to the dashboard! (Protected route)</p>
-      <Link to="/itam/dashboard">
-            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mt-4">
-                ITAM
-            </button>
-        </Link>
+
     </div>
   );
 }
