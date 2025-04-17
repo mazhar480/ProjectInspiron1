@@ -157,7 +157,7 @@ function ITAMDashboard() {
                     variant="contained"
                     color="primary"
                     component={Link}
-                    to="/itam/assets"
+                    to="/assets"
                   >
                     Go to Asset List
                   </Button>
@@ -165,7 +165,7 @@ function ITAMDashboard() {
                     variant="outlined"
                     color="primary"
                     sx={{ ml: 2 }}
-                    component={Link}
+                    component={Link}                 
                     to="/itam/assets/new"
                   >
                     Create New Asset
