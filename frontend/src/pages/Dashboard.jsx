@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Dashboard() {
   const navigate = useNavigate(); // ✅ must be called inside component
@@ -19,6 +19,11 @@ function Dashboard() {
         </button>
       </div>
       <p>Welcome to the dashboard! (Protected route)</p>
+      <Link to="/itam/dashboard">
+            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mt-4">
+                ITAM
+            </button>
+        </Link>
     </div>
   );
 }
