@@ -15,6 +15,11 @@ const authenticateToken = (req, res, next) => {
         if (err) {
             return res.sendStatus(403); // Forbidden (invalid token)
         }
+         req.user = user; // Attach the user payload to the request object
+    // Check user role for admin access
+    if (req.path.includes('/itam/settings/custom') && user.role !== 'admin') {
+      return res.sendStatus(403); // Forbidden (not an admin)
+    }
         req.user = user; // Attach the user payload to the request object
         next(); // Proceed to the next middleware or route handler
     });

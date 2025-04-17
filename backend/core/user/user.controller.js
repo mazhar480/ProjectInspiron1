@@ -34,7 +34,7 @@ exports.loginUser = async (req, res) => {
       (await userService.getUserByUsername(usernameOrEmail)) ||
       (await userService.getUserByEmail(usernameOrEmail));
 
-      console.log('User lookup result:', user);
+    console.log('User lookup result:', user);
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
@@ -48,7 +48,16 @@ exports.loginUser = async (req, res) => {
     // Generate token
     const token = userService.generateToken(user);
 
-    res.json({ message: 'Login successful', token });
+    res.json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id, // Assuming your user object has an '_id'
+        name: user.username, // Or user.name, depending on your model
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ message: 'Error during login', error: error.message });

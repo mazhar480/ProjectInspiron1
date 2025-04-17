@@ -31,6 +31,7 @@ const standardSettings = {
 
 function ITAMSettingsPage() {
   const [settings, setSettings] = useState(standardSettings);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   // Placeholder for fetching settings from the backend
   const fetchSettings = () => {
@@ -102,9 +103,11 @@ function ITAMSettingsPage() {
             <Button variant="contained" color="primary" disabled onClick={() => saveSettings(settings)}>
               Save Changes
             </Button>
-            <Button variant="outlined" component={Link} to="/itam/settings/custom">
-              Create Custom Settings
-            </Button>
+            {user.role === 'admin' && (
+              <Button variant="outlined" component={Link} to="/itam/settings/custom">
+                Create Custom Settings
+              </Button>
+            )}
           </Box>
         </Grid>
       </Grid>
