@@ -1,50 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container, Typography, Grid, Card, CardContent, Button,
-  Box, TextField, Select, MenuItem, FormControl, InputLabel
+  Box, Snackbar
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-
-const standardSettings = {
-  assetTypes: [
-    "Laptop",
-    "Desktop",
-    "Server",
-    "Monitor",
-    "Keyboard",
-    "Mouse",
-    "Software",
-    "License",
-    "Other"
-  ],
-  assetStatus: [
-    "In Use",
-    "Available",
-    "Assigned",
-    "In Repair",
-    "Damaged",
-    "Lost",
-    "Stolen",
-    "Retired"
-  ]
-};
+import axios from 'axios';
 
 function ITAMSettingsPage() {
-  const [settings, setSettings] = useState(standardSettings);
+  const [settings, setSettings] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  // Placeholder for fetching settings from the backend
-  const fetchSettings = () => {
-    // In a real app, this would make an API call
-    return Promise.resolve(standardSettings);
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
   };
 
-  // Placeholder for saving settings to the backend
-  const saveSettings = (newSettings) => {
-    // In a real app, this would make an API call
-    console.log("Saving settings:", newSettings);
-    // For now, we'll just update the local state
-    setSettings(newSettings);
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get('/api/itam/settings/standard', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSettings(response.data);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      const errorMessage = error.response?.data?.message || 'Error fetching settings';
+      showSnackbar(errorMessage, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveSettings = async (newSettings) => {
+    try {
+      await axios.post('/api/itam/settings/standard', newSettings, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      showSnackbar('Settings saved successfully', 'success');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      const errorMessage = error.response?.data?.message || 'Error saving settings';
+      showSnackbar(errorMessage, 'error');
+    }
   };
 
   useEffect(() => {
@@ -57,60 +63,61 @@ function ITAMSettingsPage() {
         ITAM Settings
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Asset Types
-              </Typography>
-              {settings.assetTypes.map((type, index) => (
-                <TextField
-                  key={index}
-                  label={`Asset Type ${index + 1}`}
-                  value={type}
-                  fullWidth
-                  margin="normal"
-                  InputProps={{ readOnly: true }}
-                />
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
+      {loading ? (
+        <Typography>Loading settings...</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Asset Types
+                </Typography>
+                {settings.assetTypes && settings.assetTypes.map((type, index) => (
+                  <Typography key={index} variant="body1" gutterBottom>
+                    {type}
+                  </Typography>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
 
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Asset Status Options
-              </Typography>
-              {settings.assetStatus.map((status, index) => (
-                <TextField
-                  key={index}
-                  label={`Status Option ${index + 1}`}
-                  value={status}
-                  fullWidth
-                  margin="normal"
-                  InputProps={{ readOnly: true }}
-                />
-              ))}
-            </CardContent>
-          </Card>
-        </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Asset Status Options
+                </Typography>
+                {settings.assetStatus && settings.assetStatus.map((status, index) => (
+                  <Typography key={index} variant="body1" gutterBottom>
+                    {status}
+                  </Typography>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
 
-        <Grid item xs={12}>
-          <Box display="flex" justifyContent="space-between">
-            <Button variant="contained" color="primary" disabled onClick={() => saveSettings(settings)}>
-              Save Changes
-            </Button>
-            {user.role === 'admin' && (
-              <Button variant="outlined" component={Link} to="/itam/settings/custom">
-                Create Custom Settings
+          <Grid item xs={12}>
+            <Box display="flex" justifyContent="space-between">
+              <Button variant="contained" color="primary" disabled onClick={() => saveSettings(settings)}>
+                Save Changes
               </Button>
-            )}
-          </Box>
+              {user.role === 'admin' && (
+                <Button variant="outlined" component={Link} to="/itam/settings/custom">
+                  Create Custom Settings
+                </Button>
+              )}
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
+       <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+      />
     </Container>
   );
 }
