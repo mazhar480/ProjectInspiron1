@@ -165,8 +165,8 @@ function ITAMDashboard() {
                     variant="outlined"
                     color="primary"
                     sx={{ ml: 2 }}
-                    component={Link}                 
-                    to="/itam/assets/new"
+                    component={Link}
+                    to="/assets/new"
                   >
                     Create New Asset
                   </Button>
