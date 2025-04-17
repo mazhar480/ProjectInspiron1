@@ -1,8 +1,21 @@
 // Frontend/src/pages/ITAM/AssetDetailsPage.jsx
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import moment from 'moment';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Chip from '@mui/material/Chip';
+import Box from '@mui/material/Box';
+
 import itamService from '../../services/itam.service';
 import axios from 'axios';
 
@@ -37,61 +50,140 @@ function AssetDetailsPage() {
   if (!asset) return <div>Asset not found.</div>;
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Asset Details</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white rounded shadow p-4 mb-6">
-        {/* Display all asset details in a grid */}
-        <div><strong>ID:</strong> {asset.id}</div>
-        <div><strong>Name:</strong> {asset.name}</div>
-        <div><strong>Asset Tag:</strong> {asset.assetTag}</div>
-        <div><strong>Status:</strong> {asset.status}</div>
-        <div><strong>Category:</strong> {asset.category}</div>
-        <div><strong>Asset Type:</strong> {asset.assetType.join(', ')}</div>
-        <div><strong>Manufacturer:</strong> {asset.manufacturer}</div>
-        <div><strong>Owner:</strong> {asset.owner}</div>
-        <div><strong>Make:</strong> {asset.make}</div>
-        <div><strong>Model:</strong> {asset.model}</div>
-        <div><strong>Serial Number:</strong> {asset.serialNumber}</div>
-        <div><strong>Location:</strong> {asset.location}</div>
-        <div><strong>Assigned User:</strong> {asset.assignedUser}</div>
-        <div><strong>Department:</strong> {asset.department}</div>
-        <div><strong>IP Address:</strong> {asset.ipAddress}</div>
-        <div><strong>Operating System:</strong> {asset.operatingSystem}</div>
-        <div><strong>Processor:</strong> {asset.processor}</div>
-        <div><strong>RAM (GB):</strong> {asset.ramGb}</div>
-        <div><strong>Storage Type:</strong> {asset.storageType}</div>
-        <div><strong>Storage Capacity (GB):</strong> {asset.storageCapacityGb}</div>
-        <div><strong>Purchase Price:</strong> {asset.purchasePrice}</div>
-        <div>
-          <strong>Warranty Start Date:</strong>{' '}
-          {asset.warrantyStartDate
-            ? moment(asset.warrantyStartDate).format('YYYY-MM-DD')
-            : 'N/A'}
-        </div>
-        <div>
-          <strong>Warranty End Date:</strong>{' '}
-          {asset.warrantyEndDate
-            ? moment(asset.warrantyEndDate).format('YYYY-MM-DD')
-            : 'N/A'}
-        </div>
-        <div><strong>Project:</strong> {asset.project}</div>
-        <div><strong>Project Location:</strong> {asset.projectLocation}</div>
-        <div>
-          <strong>Acquisition Date:</strong>{' '}
-          {asset.acquisitionDate
-            ? moment(asset.acquisitionDate).format('YYYY-MM-DD')
-            : 'N/A'}
-        </div>
-        <div><strong>Warranty Information:</strong> {asset.warrantyInformation}</div>
-        <div><strong>Configuration Details:</strong> {asset.configurationDetails}</div>
-      </div>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Asset Details
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Paper elevation={3} sx={{ p: 3 }}>
+            <Grid container spacing={2}>
+              {/* Display all asset details in a grid */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>ID:</strong> {asset.id}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Name:</strong> {asset.name}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Asset Tag:</strong> {asset.assetTag}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Status:</strong> {asset.status}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Category:</strong> {asset.category}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Asset Type:</strong> {asset.assetType.join(', ')}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Manufacturer:</strong> {asset.manufacturer}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Owner:</strong> {asset.owner}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Make:</strong> {asset.make}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Model:</strong> {asset.model}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Serial Number:</strong> {asset.serialNumber}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Location:</strong> {asset.location}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Assigned User:</strong> {asset.assignedUser}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Department:</strong> {asset.department}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>IP Address:</strong> {asset.ipAddress}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Operating System:</strong> {asset.operatingSystem}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Processor:</strong> {asset.processor}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>RAM (GB):</strong> {asset.ramGb}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Storage Type:</strong> {asset.storageType}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Storage Capacity (GB):</strong> {asset.storageCapacityGb}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Purchase Price:</strong> {asset.purchasePrice}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Warranty Start Date:</strong>{' '}
+                  {asset.warrantyStartDate
+                    ? moment(asset.warrantyStartDate).format('YYYY-MM-DD')
+                    : 'N/A'}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Warranty End Date:</strong>{' '}
+                  {asset.warrantyEndDate
+                    ? moment(asset.warrantyEndDate).format('YYYY-MM-DD')
+                    : 'N/A'}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Project:</strong> {asset.project}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Project Location:</strong> {asset.projectLocation}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Acquisition Date:</strong>{' '}
+                  {asset.acquisitionDate
+                    ? moment(asset.acquisitionDate).format('YYYY-MM-DD')
+                    : 'N/A'}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Warranty Information:</strong> {asset.warrantyInformation}
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Configuration Details:</strong> {asset.configurationDetails}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      </Grid>
 
-      <h3 className="text-xl font-semibold mb-2">🕓 Asset History</h3>
+      <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 4 }}>
+        <Box display="flex" alignItems="center">
+          <Typography variant="h5" component="h3" color="primary">
+          🕓
+          </Typography>
+          <Typography variant="h5" component="h3" sx={{ml: 1}}>Asset History</Typography>
+        </Box>
+      </Typography>
       {logs.length === 0 ? (
-        <p>No logs available for this asset.</p>
+        <Typography variant="body1">No logs available for this asset.</Typography>
       ) : (
-        <div className="bg-gray-100 p-4 rounded">
-          <ul className="space-y-4">
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Action</TableCell>
+                  <TableCell>Changed By</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Changes</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
             {logs.map((log, index) => {
               let parsedChanges = {};
               try {
@@ -105,38 +197,45 @@ function AssetDetailsPage() {
               }
 
               const filteredChanges = Object.entries(parsedChanges).filter(
-                ([key, values]) => values.new !== null && values.new !== ''
+                ([key, values]) => values.new !== null && values.new !== '' || values.old !== null && values.old !== ''
               );
 
               return (
-                <li
-                  key={index}
-                  className="border-b border-gray-300 pb-4 last:border-b-0"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <p><strong>Action:</strong> {log.action_type}</p>
-                    <p className="text-sm"><strong>By:</strong> {log.changed_by}</p>
-                    <p className="text-sm"><strong>Time:</strong> {new Date(log.timestamp).toLocaleString()}</p>
-                  </div>
-                  <ul className="ml-4">
+                <TableRow key={index}>
+                  <TableCell>{log.action_type}</TableCell>
+                  <TableCell>{log.changed_by}</TableCell>
+                  <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
+                  <TableCell>
                     {filteredChanges.map(([field, values]) => (
-                      <li key={field} className="mb-1">
-                        <strong className="capitalize">{field}:</strong>
-                        <span className="block ml-4">
-                          <span className="text-gray-500">Old: {String(values.old)}</span>
-                          <span className="text-green-600">New: {String(values.new)}</span>
-                        </span>
-
-                      </li>
+                      <div key={field} style={{ marginBottom: '8px' }}>
+                        <Typography variant="body2" style={{ textTransform: 'capitalize' }}>
+                          <strong>{field}:</strong>
+                        </Typography>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Chip
+                            label={`Old: ${values.old !== null ? String(values.old) : 'N/A'}`}
+                            color="default"
+                            size="small"
+                            sx={{ mr: 1 }}
+                          />
+                          <Chip
+                            label={`New: ${values.new !== null ? String(values.new) : 'N/A'}`}
+                            color="success"
+                            size="small"
+                          />
+                        </div>
+                      </div>
                     ))}
-                  </ul>
-                </li>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </ul>
-        </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       )}
-    </div>
+    </Container>
   );
 }
 
